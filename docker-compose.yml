@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Ikdfsajdksad7sad7787sdafsdaf"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    restart: always
+
+  api:
+    build:
+      context: .
+      dockerfile: AgileMonkeysApi/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AgileMonkeysDb;User Id=sa;Password=Ikdfsajdksad7sad7787sdafsdaf;TrustServerCertificate=True;"
+      Jwt__Key: "supersecretkey123456supersecretkey123456supersecretkey123456supersecretkey123456"
+      Jwt__Issuer: "AgileMonkeysApi"
+      Jwt__Audience: "AgileMonkeysApiUsers"
+    ports:
+      - "5000:80"
+    depends_on:
+      - sqlserver

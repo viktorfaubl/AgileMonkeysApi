@@ -27,7 +27,7 @@ namespace AgileMonkeysApi
 
             // Add JWT authentication
             var jwtSection = builder.Configuration.GetSection("Jwt");
-            var jwtKey = jwtSection.GetValue<string>("Key") ?? "supersecretkey123456";
+            var jwtKey = jwtSection.GetValue<string>("Key");
             var jwtIssuer = jwtSection.GetValue<string>("Issuer") ?? "AgileMonkeysApi";
             var jwtAudience = jwtSection.GetValue<string>("Audience") ?? "AgileMonkeysApiUsers";
 
