@@ -15,9 +15,10 @@ namespace AgileMonkeysApi
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
 
-            // Add EF Core with in-memory database for demo purposes
+            // Add EF Core with SQL Server
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("AgileMonkeysDb"));
+                options.UseSqlServer(connectionString));
 
             // Add Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -25,6 +26,11 @@ namespace AgileMonkeysApi
                 .AddDefaultTokenProviders();
 
             // Add JWT authentication
+            var jwtSection = builder.Configuration.GetSection("Jwt");
+            var jwtKey = jwtSection.GetValue<string>("Key") ?? "supersecretkey123456";
+            var jwtIssuer = jwtSection.GetValue<string>("Issuer") ?? "AgileMonkeysApi";
+            var jwtAudience = jwtSection.GetValue<string>("Audience") ?? "AgileMonkeysApiUsers";
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,10 +40,13 @@ namespace AgileMonkeysApi
             {
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = false
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidAudience = jwtAudience,
+                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey))
                 };
             });
 
@@ -107,5 +116,6 @@ namespace AgileMonkeysApi
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public DbSet<ApplicationUser> Users { get; set; } // Required for Identity
     }
 }

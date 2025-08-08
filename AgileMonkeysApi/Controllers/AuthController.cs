@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +10,7 @@ namespace AgileMonkeysApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[Authorize]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -22,6 +24,7 @@ namespace AgileMonkeysApi.Controllers
             _configuration = configuration;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
@@ -32,6 +35,7 @@ namespace AgileMonkeysApi.Controllers
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
